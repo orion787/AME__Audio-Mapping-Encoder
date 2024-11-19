@@ -5,74 +5,52 @@
 #include "./mikuzators/custom_mikuzator.hpp"
 
 
-// Forward declarations for each component class
-class WavReader;
-class Mp3Reader;
-class FLACReader;
-class RecursiveFFT;
-class CustomMikuzator;
+// Reader concept
+template <typename T>
+concept Reader = requires(T reader, const std::string & filename) {
+    { reader.read(filename) } -> std::same_as<std::vector<std::complex<double>>*>;
+};
 
-// Базовый случай шаблона (без реализации)
-template <typename R, typename F, typename M>
-class AudioProcessor;
+// FourierTransform concept
+template <typename T>
+concept FourierTransform = requires(T transform, std::vector<std::complex<double>>&data) {
+    { transform.apply(data) } -> std::same_as<void>;
+};
 
-// Специализация AudioProcessor для WAV файлов
-template <>
-class AudioProcessor<WavReader, RecursiveFFT, CustomMikuzator> {
-public:
-    AudioProcessor(WavReader reader, RecursiveFFT fft, CustomMikuzator mikuzator)
-        : reader_(reader), fft_(fft), mikuzator_(mikuzator) {}
-
-    uint64_t process(const std::string& filename) {
-        auto* data = reader_.read(filename);
-        fft_.apply(*data);
-        return mikuzator_.generate(*data);
-    }
-
-private:
-    WavReader reader_;
-    RecursiveFFT fft_;
-    CustomMikuzator mikuzator_;
+// Mikuzator concept
+template <typename T>
+concept Mikuzator = requires(T mikuzator, const std::vector<std::complex<double>>&data) {
+    { mikuzator.generate(data) } -> std::same_as<uint64_t>;
 };
 
 
-// Специализация AudioProcessor для MP3 файлов
-template <>
-class AudioProcessor<Mp3Reader, RecursiveFFT, CustomMikuzator> {
+
+template <Reader R, FourierTransform F, Mikuzator M>
+class AudioProcessor {
+    R reader;
+    F transform;
+    M mikuzator;
+
 public:
-    AudioProcessor(Mp3Reader reader, RecursiveFFT fft, CustomMikuzator mikuzator)
-        : reader_(reader), fft_(fft), mikuzator_(mikuzator) {}
+    AudioProcessor(R r, F f, M m) : reader(r), transform(f), mikuzator(m) {}
 
     uint64_t process(const std::string& filename) {
-        auto* data = reader_.read(filename);
-        fft_.apply(*data);
-        return mikuzator_.generate(*data);
+        // Читаем данные
+        auto* data = reader.read(filename);
+        if (!data) {
+            throw std::runtime_error("Failed to read audio data");
+        }
+
+        // Применяем преобразование
+        transform.apply(*data);
+
+        // Генерируем число
+        uint64_t result = mikuzator.generate(*data);
+
+        // Освобождаем память
+        delete data;
+        return result;
     }
-
-private:
-    Mp3Reader reader_;
-    RecursiveFFT fft_;
-    CustomMikuzator mikuzator_;
-};
-
-
-// Специализация AudioProcessor для FLAC файлов
-template <>
-class AudioProcessor<FLACReader, RecursiveFFT, CustomMikuzator> {
-public:
-    AudioProcessor(FLACReader reader, RecursiveFFT fft, CustomMikuzator mikuzator)
-        : reader_(reader), fft_(fft), mikuzator_(mikuzator) {}
-
-    uint64_t process(const std::string& filename) {
-        auto* data = reader_.read(filename);
-        fft_.apply(*data);
-        return mikuzator_.generate(*data);
-    }
-
-private:
-    FLACReader reader_;
-    RecursiveFFT fft_;
-    CustomMikuzator mikuzator_;
 };
 
 
@@ -86,25 +64,21 @@ int main(int argc, char* argv[]) {
     std::string filename = argv[1];
     std::string fileFormat = filename.substr(filename.find_last_of('.') + 1); // Функция, которая определяет формат файла
 
+    constexpr WavReader wavReader;
+    constexpr Mp3Reader mp3Reader;
+    constexpr FLACReader flacReader;
+    constexpr RecursiveFFT fft;
+    constexpr CustomMikuzator mikuzator;
 
     if (fileFormat == "wav") {
-        WavReader wavReader;
-        RecursiveFFT fft;
-        CustomMikuzator mikuzator;
         AudioProcessor<WavReader, RecursiveFFT, CustomMikuzator> wavProcessor(wavReader, fft, mikuzator);
         uint64_t wavID = wavProcessor.process(filename);
         std::cout << "Generated ID for WAV: " << wavID << std::endl;
     } else if (fileFormat == "mp3") {
-        Mp3Reader mp3Reader;
-        RecursiveFFT fft;
-        CustomMikuzator mikuzator;
         AudioProcessor<Mp3Reader, RecursiveFFT, CustomMikuzator> mp3Processor(mp3Reader, fft, mikuzator);
         uint64_t mp3ID = mp3Processor.process(filename);
         std::cout << "Generated ID for MP3: " << mp3ID << std::endl;
     } else if (fileFormat == "flac") {
-        FLACReader flacReader;
-        RecursiveFFT fft;
-        CustomMikuzator mikuzator;
         AudioProcessor<FLACReader, RecursiveFFT, CustomMikuzator> flacProcessor(flacReader, fft, mikuzator);
         uint64_t flacID = flacProcessor.process(filename);
         std::cout << "Generated ID for FLAC: " << flacID << std::endl;
