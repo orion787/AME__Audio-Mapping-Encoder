@@ -71,15 +71,12 @@ uint64_t audioID(std::string filename){
     if (fileFormat == "wav") {
         AudioProcessor<WavReader, RecursiveFFT, CustomMikuzator> wavProcessor(wavReader, fft, mikuzator);
          audioID = wavProcessor.process(filename);
-        std::cout << "Generated ID for WAV: " << audioID << std::endl;
     } else if (fileFormat == "mp3") {
         AudioProcessor<Mp3Reader, RecursiveFFT, CustomMikuzator> mp3Processor(mp3Reader, fft, mikuzator);
         audioID = mp3Processor.process(filename);
-        std::cout << "Generated ID for MP3: " << audioID << std::endl;
     } else if (fileFormat == "flac") {
         AudioProcessor<FLACReader, RecursiveFFT, CustomMikuzator> flacProcessor(flacReader, fft, mikuzator);
         audioID = flacProcessor.process(filename);
-        std::cout << "Generated ID for FLAC: " << audioID << std::endl;
     } else {
         std::cerr << "Unsupported file format: " << fileFormat << std::endl;
         return 1;
