@@ -1,101 +1,59 @@
 #pragma once
 
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <complex>
-#include <cmath>
+#include <sndfile.h>
+#include <stdexcept>
 #include <string>
-#include <cstring>
-#include <concepts>
-#include <type_traits>
-#include <cstdint>
+#include <locale>
+#include <codecvt>
 
+// Конвертация UTF-8 -> UTF-16
+std::wstring utf8_to__wstring(const std::string& utf8) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.from_bytes(utf8);
+}
 
-class WavReader{
-private:
-    struct RIFFHeader {
-        char chunk_id[4];
-        uint32_t chunk_size;
-        char format[4];
-    };
-
-    struct ChunkInfo {
-        char chunk_id[4];
-        uint32_t chunk_size;
-    };
-
-    struct FmtChunk {
-        uint16_t audio_format;
-        uint16_t num_channels;
-        uint32_t sample_rate;
-        uint32_t byte_rate;
-        uint16_t block_align;
-        uint16_t bits_per_sample;
-    };
-
-    struct DataChunk {
-        int16_t* data;
-        int nb_of_samples;
-        DataChunk(int s) : nb_of_samples{ s }, data{ new int16_t[s] } {}
-        ~DataChunk() { delete[] data; }
-    };
-
+class WavReader {
 public:
     std::vector<std::complex<double>>* read(const std::string& filename) {
-        constexpr char riff_id[4] = { 'R', 'I', 'F', 'F' };
-        constexpr char format[4] = { 'W', 'A', 'V', 'E' };
-        constexpr char fmt_id[4] = { 'f', 'm', 't', ' ' };
-        constexpr char data_id[4] = { 'd', 'a', 't', 'a' };
-
-        std::ifstream ifs{ filename, std::ios_base::binary };
-        if (!ifs) {
-            throw std::runtime_error("Cannot open file");
+#ifdef _WIN32
+        // Преобразуем UTF-8 путь в wstring для Windows
+        std::wstring wide_filename = utf8_to__wstring(filename);
+        SF_INFO sfInfo;
+        SNDFILE* file = sf_wchar_open(wide_filename.c_str(), SFM_READ, &sfInfo);
+#else
+        SF_INFO sfInfo;
+        SNDFILE* file = sf_open(filename.c_str(), SFM_READ, &sfInfo);
+#endif
+        if (!file) {
+            throw std::runtime_error("Cannot open WAV file: " + filename + ". Error: " + sf_strerror(nullptr));
         }
 
-        // Чтение заголовка RIFF
-        RIFFHeader h;
-        ifs.read(reinterpret_cast<char*>(&h), sizeof(h));
-        if (!ifs || std::memcmp(h.chunk_id, riff_id, 4) || std::memcmp(h.format, format, 4)) {
-            throw std::runtime_error("Bad formatting");
+        // Проверка формата файла (должен быть PCM)
+        if ((sfInfo.format & SF_FORMAT_TYPEMASK) != SF_FORMAT_WAV ||
+            (sfInfo.format & SF_FORMAT_SUBMASK) != SF_FORMAT_PCM_16) {
+            sf_close(file);
+            throw std::runtime_error("Unsupported WAV format.");
         }
 
-        // Чтение chunkов
-        ChunkInfo ch;
-        FmtChunk fmt;
-        DataChunk* data_chunk = nullptr;
-        bool fmt_read = false;
-        bool data_read = false;
+        // Чтение данных из файла
+        auto* audioData = new std::vector<std::complex<double>>(sfInfo.frames);
+        std::vector<int16_t> buffer(sfInfo.frames * sfInfo.channels);
+        sf_readf_short(file, buffer.data(), sfInfo.frames);
 
-        while (ifs.read(reinterpret_cast<char*>(&ch), sizeof(ch))) {
-            // Читает fmt chunk
-            if (std::memcmp(ch.chunk_id, fmt_id, 4) == 0) {
-                ifs.read(reinterpret_cast<char*>(&fmt), ch.chunk_size);
-                fmt_read = true;
+        // Преобразование данных в вектор комплексных чисел
+        for (int i = 0; i < sfInfo.frames; ++i) {
+            double sample = 0.0;
+            for (int ch = 0; ch < sfInfo.channels; ++ch) {
+                sample += buffer[i * sfInfo.channels + ch] / 32768.0;  // Нормализация
             }
-            // Читает data chunk
-            else if (std::memcmp(ch.chunk_id, data_id, 4) == 0) {
-                data_chunk = new DataChunk(ch.chunk_size / sizeof(int16_t));
-                ifs.read(reinterpret_cast<char*>(data_chunk->data), ch.chunk_size);
-                data_read = true;
-            }
-            else {
-                ifs.seekg(ch.chunk_size, std::ios_base::cur);
-            }
+            sample /= sfInfo.channels;
+            (*audioData)[i] = std::complex<double>(sample, 0.0);
         }
 
-        if (!data_read || !fmt_read) {
-            delete data_chunk;
-            throw std::runtime_error("Problem when reading data");
-        }
-
-        // Преобразует данные в массив комплексных чисел
-        auto* complex_data = new std::vector<std::complex<double>>(data_chunk->nb_of_samples);
-        for (int i = 0; i < data_chunk->nb_of_samples; ++i) {
-            (*complex_data)[i] = std::complex<double>(data_chunk->data[i], 0.0);
-        }
-
-        delete data_chunk;
-        return complex_data;
+        sf_close(file);
+        return audioData;
     }
 };
