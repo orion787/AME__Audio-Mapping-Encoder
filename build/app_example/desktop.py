@@ -73,8 +73,10 @@ def main(page: Page):
         file_path = file_path_field.value.strip()
         if not file_path:
             result_text.value = "Ошибка: путь к файлу не указан."
+            page.update()  # Обновляем интерфейс сразу
         elif not any(file_path.endswith(ext) for ext in SUPPORTED_FORMATS):
             result_text.value = f"Ошибка: неподдерживаемый формат файла.\nПоддерживаются: {', '.join(SUPPORTED_FORMATS)}"
+            page.update()  # Обновляем интерфейс сразу
         else:
             result_text.value = "Генерация..."  # Показываем сообщение во время генерации
             page.update()  # Обновляем интерфейс сразу
