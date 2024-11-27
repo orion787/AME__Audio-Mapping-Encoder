@@ -40,7 +40,7 @@ def build_for_windows():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++',
+        'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++', '-mavx', '-Wall',
         '-lmingw32', '-mwindows',
         f'-I{include_dir}', f'-I./src/include',
         f'-L{libs_dir}', '-L./build',
@@ -66,7 +66,7 @@ def build_for_linux():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC',
+        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
         '$(python3 -m pybind11 --includes)',
         './src/bind.cpp',
         '-o', './build/ame$(python3-config --extension-suffix)',
