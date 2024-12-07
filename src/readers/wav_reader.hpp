@@ -10,17 +10,14 @@
 #include <codecvt>
 
 // Конвертация UTF-8 -> UTF-16
-std::wstring utf8_to__wstring(const std::string& utf8) {
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    return converter.from_bytes(utf8);
-}
+extern std::wstring utf8_to_wstring(const std::string& utf8);
 
 class WavReader {
 public:
     std::vector<std::complex<double>>* read(const std::string& filename) {
 #ifdef _WIN32
         // Преобразуем UTF-8 путь в wstring для Windows
-        std::wstring wide_filename = utf8_to__wstring(filename);
+        std::wstring wide_filename = utf8_to_wstring(filename);
         SF_INFO sfInfo;
         SNDFILE* file = sf_wchar_open(wide_filename.c_str(), SFM_READ, &sfInfo);
 #else
