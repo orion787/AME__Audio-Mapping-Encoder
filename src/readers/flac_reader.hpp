@@ -10,7 +10,7 @@
 #include <codecvt>
 
 // Конвертация UTF-8 -> UTF-16
-static std::wstring utf8_to_wstring(const std::string& utf8) {
+std::wstring utf8_to_wstring(const std::string& utf8) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.from_bytes(utf8);
 }
