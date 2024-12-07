@@ -1,15 +1,12 @@
 import flet as ft
 from flet import ElevatedButton, FilePicker, FilePickerResultEvent, Tab, Tabs, Text, TextField, IconButton, Row, Column, Switch, AppBar, Page, Container
 import os
-import cpuinfo
+import cpufeature
 import platform
 if platform.system() == "Windows":
     os.add_dll_directory("C:\\MinGW\\mingw64\\bin")
 
-
-info = cpuinfo.get_cpu_info()
-flags = info.get('flags', [])
-if 'avx' in flags:
+if cpufeature.CPUFeature["AVX2"]:
     from ame import audioIDAVX as audioID
     from ame import audioPasswordAVX as audioPassword
 else:
@@ -17,7 +14,6 @@ else:
     from ame import audioPassword
 
     
-
 
 import ame  # Модуль для получения ID песни
 import threading
