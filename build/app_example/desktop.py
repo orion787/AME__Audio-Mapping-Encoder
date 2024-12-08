@@ -3,8 +3,8 @@ from flet import ElevatedButton, FilePicker, FilePickerResultEvent, Tab, Tabs, T
 import os
 import cpufeature
 import platform
-if platform.system() == "Windows":
-    os.add_dll_directory("C:\\MinGW\\mingw64\\bin")
+#if platform.system() == "Windows":
+#    os.add_dll_directory("C:\\MinGW\\mingw64\\bin")
 
 if cpufeature.CPUFeature["AVX2"]:
     from ame import audioIDAVX as audioID
