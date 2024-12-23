@@ -1,6 +1,6 @@
-#include "FilePasswordProcessor.cpp"
 #include <iostream>
 #include "SHA512ID.cpp"
+#include "FilePasswordProcessor.cpp"
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
