@@ -42,9 +42,9 @@ def build_for_windows():
     compiler_command = [
         'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++', '-mavx', '-Wall',
         '-lmingw32', '-mwindows',
-        f'-I{include_dir}', f'-I./src/include',
+        f'-I{include_dir}', f'-I./src/ame/include',
         f'-L{libs_dir}', '-L./build',
-        './src/bind.cpp',
+        './src/ame/bind.cpp',
         '-o', './build/ame.pyd',
         '-lpython311', '-lmpg123-0', '-lsndfile'
     ]
@@ -68,7 +68,7 @@ def build_for_linux():
     compiler_command = [
         'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
         '$(python3 -m pybind11 --includes)',
-        './src/bind.cpp',
+        './src/ame/bind.cpp',
         '-o', './build/ame$(python3-config --extension-suffix)',
         '-lmpg123', '-lsndfile'
     ]
