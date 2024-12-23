@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Processing</title>
+    <!-- Подключение Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Дополнительные стили -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .btn-custom {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .alert {
+            margin-top: 1rem;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #343a40;
+        }
+        #loading-indicator {
+            display: none;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Audio Mapping Encoder</h1>
+        <form method="POST" enctype="multipart/form-data" id="audio-form">
+            <div class="mb-3">
+                <label for="audio_file" class="form-label">Choose an audio file</label>
+                <input type="file" class="form-control" id="audio_file" name="audio_file" required>
+                <div class="form-text">
+                    Supported formats: <strong>WAV, MP3, FLAC</strong>.
+                </div>
+            </div>
+            
+            <!-- Выбор алгоритма -->
+            <div class="mb-3">
+                <label for="algorithm" class="form-label">Select Algorithm</label>
+                <select class="form-select" id="algorithm" name="algorithm">
+                    <option value="sha512" selected>SHA-512-based</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button type="submit" name="action" value="Generate ID" class="btn btn-primary btn-custom">
+                    Generate ID
+                </button>
+                <button type="submit" name="action" value="Generate Password" class="btn btn-success btn-custom">
+                    Generate Password
+                </button>
+            </div>
+        </form>
+
+        <!-- Индикатор загрузки -->
+        <div id="loading-indicator" class="text-primary">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <div>Processing your file, please wait...</div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-danger" id="error-message">
+                    <ul class="mb-0">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if result %}
+            <div class="alert alert-info" id="result-message">
+                <strong>{{ result }}</strong>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Подключение Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript для индикатора загрузки -->
+    <script>
+        document.getElementById('audio-form').addEventListener('submit', function() {
+            document.getElementById('loading-indicator').style.display = 'block';
+
+            const resultMessage = document.getElementById('result-message');
+            const errorMessage = document.getElementById('error-message');
+
+            if (resultMessage) resultMessage.style.display = 'none';
+            if (errorMessage) errorMessage.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
