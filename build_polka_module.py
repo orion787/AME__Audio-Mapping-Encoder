@@ -66,7 +66,7 @@ def build_for_linux():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-Wall',
+        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-Wall', '-fsanitize=thread',
         '$(python3 -m pybind11 --includes)',
         './src/polka/bind.cpp',
         '-o', './build/polka$(python3-config --extension-suffix)',
