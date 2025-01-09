@@ -103,15 +103,32 @@
 
     <!-- JavaScript для индикатора загрузки -->
     <script>
-        document.getElementById('audio-form').addEventListener('submit', function() {
-            document.getElementById('loading-indicator').style.display = 'block';
+        document.getElementById('audio-form').addEventListener('submit', function(event) {
+    const fileInput = document.getElementById('audio_file');
+    const file = fileInput.files[0];
+    const maxSize = 50 * 1024 * 1024; // 50 MB в байтах
 
-            const resultMessage = document.getElementById('result-message');
-            const errorMessage = document.getElementById('error-message');
+    if (file && file.size > maxSize) {
+        alert("File size exceeds 50 MB. Please choose a smaller file.");
+        event.preventDefault(); // Отменяем отправку формы
+        return;
+    }
 
-            if (resultMessage) resultMessage.style.display = 'none';
-            if (errorMessage) errorMessage.style.display = 'none';
-        });
+    // Показываем индикатор загрузки
+    document.getElementById('loading-indicator').style.display = 'block';
+        // Скрываем блоки с предыдущими результатами или ошибками
+        const resultMessage = document.getElementById('result-message');
+        const errorMessage = document.getElementById('error-message');
+
+        if (resultMessage) {
+            resultMessage.style.display = 'none';
+        }
+
+        if (errorMessage) {
+            errorMessage.style.display = 'none';
+        }
+    });
+
     </script>
 </body>
 </html>
