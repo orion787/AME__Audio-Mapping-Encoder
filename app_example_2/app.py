@@ -60,7 +60,7 @@ def index():
                 elif action == "Generate Password":
                     result = f"Generated Password (Custom): {audioPassword(file_path)}"
         except Exception as e:
-            flash(f"An error occurred: {str(e)}")
+            flash(f"Invalid file format") #{str(e)}
         finally:
             if os.path.exists(file_path):
                 os.remove(file_path)
