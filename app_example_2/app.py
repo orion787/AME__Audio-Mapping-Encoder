@@ -8,8 +8,8 @@ if platform.system() == "Windows":
 # Подключение модулей
 from ame import audioIDAVX as audioID
 from ame import audioPasswordAVX as audioPassword
-
-from polka import fileID, filePassword  # Новый модуль polka
+from polka import fileID, filePassword  
+from fibuki import audioID as virtual_audioID, audioPassword as virtual_audioPassword
 
 from werkzeug.utils import secure_filename
 
@@ -54,13 +54,18 @@ def index():
                     result = f"Generated ID (SHA-512-based): {fileID(file_path)[:25]}"
                 elif action == "Generate Password":
                     result = f"Generated Password (SHA-512-based): {filePassword(file_path)}"
-            else:  # По умолчанию Custom
+            elif algorithm == "custom":
                 if action == "Generate ID":
                     result = f"Generated ID (Custom): {audioID(file_path)}"
                 elif action == "Generate Password":
                     result = f"Generated Password (Custom): {audioPassword(file_path)}"
+            elif algorithm == "virtual":
+                if action == "Generate ID":
+                    result = f"Generated ID (VirtualStrategy): {virtual_audioID(file_path)}"
+                elif action == "Generate Password":
+                    result = f"Generated Password (VirtualStrategy): {virtual_audioPassword(file_path)}"
         except Exception as e:
-            flash(f"Invalid file format") #{str(e)}
+            flash(f"Invalid file format")
         finally:
             if os.path.exists(file_path):
                 os.remove(file_path)
