@@ -67,7 +67,7 @@ def build_for_linux():
     # Команда компиляции
     compiler_command = [
         'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-Wall', '-mavx2', '-mfma' ,
-        '$(python3 -m pybind11 --includes)',
+        '$(python3 -m pybind11 --includes)',  f'-I./src/fibuki/include',
         './src/fibuki/bind.cpp', './src/fibuki/Readers/*Reader.cpp',
         '-o', './build/fibuki$(python3-config --extension-suffix)'
     ]
