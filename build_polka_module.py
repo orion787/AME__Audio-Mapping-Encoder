@@ -40,13 +40,11 @@ def build_for_windows():
 
     # Команда компиляции
     compiler_command = [
-        'g++', '-O3', '-std=c++20', '-shared', '-fPIC', '-static-libgcc', '-static-libstdc++', '-Wall',
-        '-lmingw32', '-mwindows',
-        f'-I{include_dir}', f'-I./src/polka/include',
-        f'-L{libs_dir}',
+        'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
+        '$(python3 -m pybind11 --includes)', f'-I./src/polka/include',
         './src/polka/bind.cpp',
-        '-o', './build/polka.pyd',
-        '-lpython311'
+        '-o', './build/polka$(python3-config --extension-suffix)',
+        '-Wl,--exclude-libs=libtsan.a'
     ]
 
     # Выполнение команды
