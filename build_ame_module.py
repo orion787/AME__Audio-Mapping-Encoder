@@ -67,7 +67,7 @@ def build_for_linux():
     # Команда компиляции
     compiler_command = [
         'g++', '-O3', '-Wall', '-shared', '-std=c++20', '-fPIC', '-mavx', '-Wall',
-        '$(python3 -m pybind11 --includes)',
+        '$(python3 -m pybind11 --includes)', f'-I./src/ame/include',
         './src/ame/bind.cpp',
         '-o', './build/ame$(python3-config --extension-suffix)',
         '-lmpg123', '-lsndfile'
