@@ -1,3 +1,10 @@
+//-----------------------------------------------------------------------------
+//
+// Project: AME - FIBUKI realization (second)
+// Author: orion787 
+// License: GNU GPL v3 (see the LICENSE in the root of the repository)
+//
+//-----------------------------------------------------------------------------
 #include <iostream>
 #include <string>
 #include <vector>
