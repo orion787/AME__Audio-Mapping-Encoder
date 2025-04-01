@@ -73,8 +73,6 @@ public:
 
 
 
-
-
 template <Reader R, FourierTransform F, Mikuzator M>
 class AudioIDProcessor {
     R reader;
