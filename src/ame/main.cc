@@ -1,3 +1,10 @@
+//-----------------------------------------------------------------------------
+//
+// Project: AME - AME realization (first)
+// Author: orion787 
+// License: GNU GPL v3 (see the LICENSE in the root of the repository)
+//
+//-----------------------------------------------------------------------------
 #include "./readers/wav_reader.hpp"
 #include "./readers/mp3_reader.hpp"
 #include "./readers/flac_reader.hpp"
