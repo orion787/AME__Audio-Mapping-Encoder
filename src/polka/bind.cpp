@@ -1,3 +1,10 @@
+//-----------------------------------------------------------------------------
+//
+// Project: AME - POLKA realization (thrird)
+// Author: orion787 
+// License: GNU GPL v3 (see the LICENSE in the root of the repository)
+//
+//-----------------------------------------------------------------------------
 #include <iostream>
 #include "SHA512ID.cpp"
 #include "FilePasswordProcessor.cpp"
